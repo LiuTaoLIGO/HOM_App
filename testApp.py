@@ -7,27 +7,30 @@ from PIL import ImageTk, Image
 
 from HOMlab import *
 
-
 class App:
     def __init__(self):
         self.root = tk.Tk()
         self.root.geometry("960x576")
         self.root.title("HOM Phase Map Generation")
+
         self.root.resizable(False, False)
 
-        self.font = tkFont.Font(family="DejaVu Math TeX Gyre", size=18)
-        self.smallfont = tkFont.Font(family="Arial", size=14)
-        self.bigfont = tkFont.Font(family="Arial", size=40, weight='bold')
+        self.font = tkFont.Font(family="Arial Rounded MT Bold", size=18)
+        self.contentfont = tkFont.Font(family="Arial", size=16, weight="normal")
+        self.labelfont = tkFont.Font(family="Courier New", size=16)
+
+        self.smallfont = tkFont.Font(family="Arial", size=16, weight="bold")
+        self.bigfont = tkFont.Font(family="Arial Rounded MT Bold", size=40,)
         self.messagefont = tkFont.Font(
             family="Arial", size=30, weight='bold')
 
         self.beam_size_label = tk.Label(
             self.root, text="Average Beam Size (mm):", font=self.font, )
-        self.beam_size_label.place(x=60, y=20)
+        self.beam_size_label.place(x=112, y=20)
 
         self.beam_size_entry = tk.Entry(
-            self.root, font=self.font, width=10)
-        self.beam_size_entry.place(x=290, y=18)
+            self.root, font=self.contentfont, width=6, justify='center', bd=0, highlightthickness=0.6, highlightbackground='#DBDBDB')
+        self.beam_size_entry.place(x=362, y=23)
 
         self.beam_size_entry.insert(0, "1.3")
 
@@ -38,12 +41,12 @@ class App:
 
         self.hom_menu_label = tk.Label(
             self.root, text="Select Your HOM: ", font=self.font)
-        self.hom_menu_label.place(x=560, y=20)
+        self.hom_menu_label.place(x=572, y=20)
 
         self.hom_menu = tk.OptionMenu(
             self.root, self.selected_hom, *hom_options)
-        self.hom_menu.config(font=self.font, width=10)
-        self.hom_menu.place(x=730, y=18)
+        self.hom_menu.config(font=self.contentfont, width=6, justify="center", highlightthickness=3, bd=3)
+        self.hom_menu.place(x=750, y=19)
 
         # Create the first slider
         self.slider1_label = tk.Label(
@@ -51,26 +54,26 @@ class App:
         self.slider1_label.place(x=50, y=70)
 
         self.slider1 = tk.Scale(
-            self.root, from_=0.5, to=1.5, orient=tk.HORIZONTAL, resolution=0.01, length=500)
-        self.slider1.place(x=200, y=57)
+            self.root, from_=0.5, to=1.5, orient=tk.HORIZONTAL, resolution=0.01, length=500, font=self.contentfont)
+        self.slider1.place(x=200, y=54)
 
         self.slider1.set(1.0)
 
         # Create the second slider
         self.slider2_label = tk.Label(
             self.root, text="Beam Size (y): ", font=self.font)
-        self.slider2_label.place(x=50, y=120)
+        self.slider2_label.place(x=50, y=120, )
 
         self.slider2 = tk.Scale(
-            self.root, from_=0.5, to=1.5, orient=tk.HORIZONTAL, resolution=0.01, length=500)
-        self.slider2.place(x=200, y=107)
+            self.root, from_=0.5, to=1.5, orient=tk.HORIZONTAL, resolution=0.01, length=500, font=self.contentfont)
+        self.slider2.place(x=200, y=104)
 
         self.slider2.set(1.0)
 
         # Create the force button
         self.force_button = tk.Button(
-            self.root, text="No Astigmatism", command=self.force_slider, font=self.font, height=2, width=12, cursor="hand1")
-        self.force_button.place(x=735, y=85)
+            self.root, text="No Astigmatism", command=self.force_slider, font=self.font, height=2, width=14, cursor="hand1")
+        self.force_button.place(x=735, y=86)
 
         self.var = tk.IntVar()
         self.R1 = tk.Radiobutton(
@@ -79,25 +82,39 @@ class App:
         self.R2 = tk.Radiobutton(
             self.root, text="Multiple Maps", variable=self.var, value=2, command=self.select, font=self.font)
 
-        self.R1.place(x=60, y=180)
-        self.R2.place(x=60, y=213)
+        self.R1.place(x=57, y=173)
+        self.R2.place(x=57, y=206)
 
         # Create the Generate button
         self.generate_button = tk.Button(
-            self.root, text="Generate", command=self.generate_image, font=self.bigfont, width=8, height=2, cursor="hand1")
-        self.generate_button.place(x=655, y=290)
+            self.root, text="Generate", command=self.generate_image, font=self.bigfont, width=9, height=2, cursor="hand1")
+        # self.generate_button = ttk.Button(
+        #     self.root, text="Generate", command=self.generate_image, cursor="hand1", style='RoundedButton.TButton')
+        self.generate_button.place(x=630, y=287)
 
         # Create the display window
 
         defaultImage = Image.fromarray(np.ones((270, 450)))
-        default_tk_image = ImageTk.PhotoImage(defaultImage)
+        default_tk_image = ImageTk.PhotoImage(master=self.root, image=defaultImage)
+        shadow_display = tk.Label(self.root, image=default_tk_image, bg="#000000")
         self.display = tk.Label(
             self.root, image=default_tk_image, bg="#BEBEBE")
-        self.display.place(x=100, y=268)
 
+        shadow_display.place(x=100+1, y=258+1)
+        self.display.place(x=100, y=258)
+
+
+        self.displaylabel = tk.Label(
+            self.root, text="Phase Map Preview", font=self.font)
+        self.displaylabel.place(x=247, y=538)
+
+        
+        # back_savebtn = tk.Button(self.root, bg="black", font=self.bigfont, width=9, height=2, cursor="hand1", bd=0, activebackground="black", highlightthickness=0)
         self.save_button = tk.Button(
-            self.root, text="Save", command=self.save_image, font=self.bigfont, width=8, height=2, cursor="hand1")
-        self.save_button.place(x=655, y=410)
+            self.root, text="Save", command=self.save_image, font=self.bigfont, width=9, height=2, cursor="hand1")
+
+        # back_savebtn.place(x=630+2, y=405+2)
+        self.save_button.place(x=630, y=407)
 
         self.map_size = []
         self.pil_images = []
@@ -110,8 +127,8 @@ class App:
         else:
             fg = "orange"
         messagelabel = tk.Label(self.root, text=message,
-                                highlightthickness=0, bg="systemTransparent")
-        messagelabel.place(x=175, y=380)
+                                highlightthickness=0, bg="#BEBEBE")
+        messagelabel.place(x=148, y=380)
         messagelabel.config(font=self.messagefont, fg=fg)
 
         # schedule the label to disappear after three seconds
@@ -136,9 +153,9 @@ class App:
                     self.root, text="Map Size", font=tkFont.Font(family="DejaVu Math TeX Gyre", size=22))
 
                 self.map_size_slider = tk.Scale(
-                    self.root, from_=0, to=1, orient=tk.HORIZONTAL, resolution=0.01, length=500, font=self.font)
+                    self.root, from_=0, to=1, orient=tk.HORIZONTAL, resolution=0.01, length=500, font=self.smallfont)
 
-                self.map_size_label.place(x=770, y=185)
+                self.map_size_label.place(x=765, y=183)
                 self.map_size_slider.place(x=230, y=170)
                 self.map_size_slider.set(0.5)
 
@@ -153,32 +170,32 @@ class App:
                     self.root, text="Map Size Range ", font=tkFont.Font(family="DejaVu Math TeX Gyre", size=22))
 
                 self.map_size_start = tk.Entry(
-                    self.root, font=self.font, width=5)
+                    self.root, font=self.contentfont, width=5, justify="center")
                 self.map_size_start_label = tk.Label(
-                    self.root, text="Min Map Size", font=self.smallfont)
+                    self.root, text="Min Map Size", font=self.labelfont)
                 self.map_size_end = tk.Entry(
-                    self.root, font=self.font, width=5)
+                    self.root, font=self.contentfont, width=5, justify="center")
                 self.map_size_end_label = tk.Label(
-                    self.root, text="Max Map Size", font=self.smallfont)
+                    self.root, text="Max Map Size", font=self.labelfont)
                 self.map_size_steps = tk.Entry(
-                    self.root, font=self.font, width=5)
+                    self.root, font=self.contentfont, width=5, justify="center")
                 self.map_size_steps_label = tk.Label(
-                    self.root, text="Number of Maps", font=self.smallfont)
+                    self.root, text="Number of Maps", font=self.labelfont)
 
                 self.map_size_start.insert(0, "0.2")
                 self.map_size_end.insert(0, "0.8")
                 self.map_size_steps.insert(0, "6")
 
-                self.map_size_range_label.place(x=705, y=190)
+                self.map_size_range_label.place(x=680, y=173)
 
-                self.map_size_start.place(x=280, y=180)
-                self.map_size_start_label.place(x=265, y=220)
+                self.map_size_start.place(x=280, y=173)
+                self.map_size_start_label.place(x=250, y=213)
 
-                self.map_size_end.place(x=430, y=180)
-                self.map_size_end_label.place(x=413, y=220)
+                self.map_size_end.place(x=430, y=173)
+                self.map_size_end_label.place(x=407, y=213)
 
-                self.map_size_steps.place(x=580, y=180)
-                self.map_size_steps_label.place(x=559, y=220)
+                self.map_size_steps.place(x=580, y=175)
+                self.map_size_steps_label.place(x=556, y=213)
 
         else:
             return
@@ -208,7 +225,7 @@ class App:
         self.pil_images = []
         if len(self.map_size) == 0:
             self.display_notification(
-                message="Select Your Options!", type="warning")
+                message="Select Map Size Options!", type="warning")
             return
 
         for map_size in self.map_size:
@@ -246,7 +263,7 @@ class App:
         HOM = self.selected_hom.get()
         if len(self.pil_images) == 0:
             self.display_notification(
-                message="Generate Images First!", type="warning")
+                message="Generate An Image First!", type="warning")
             return
         elif len(self.pil_images) == 1:
             file_path = filedialog.asksaveasfilename(
@@ -265,7 +282,6 @@ class App:
 
     def generate_image(self):
         self.get_image()
-
 
 app = App()
 app.root.mainloop()
